@@ -99,7 +99,7 @@
 <body>
     <div class="container">
         
-        <h1>?? Historical Question Challenge </h1> 
+        <h1>⏳ The Era Explorer: Timeline Challenge </h1> 
         
         <p id="instruction">Which of these events occurred **EARLIEST**?</p>
 
