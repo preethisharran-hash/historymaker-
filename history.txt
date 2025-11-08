@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Historical Question Challenge</title>
+    
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4e8;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 700px;
+            width: 95%;
+            border: 2px solid #5d4037;
+        }
+
+        h1 {
+            color: #5d4037;
+            border-bottom: 2px solid #d7ccc8;
+            padding-bottom: 10px;
+        }
+
+        p#instruction {
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3e2723;
+        }
+
+        #question-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .event-btn {
+            background-color: #ffe0b2;
+            color: #3e2723;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            border-left: 5px solid #ff9800;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .event-btn:hover:not(:disabled) {
+            background-color: #ffcc80;
+        }
+        
+        .event-btn:disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .event-btn.correct {
+            background-color: #81c784 !important;
+            border-left-color: #4caf50;
+        }
+
+        .event-btn.incorrect {
+            background-color: #ef9a9a !important;
+            border-left-color: #f44336;
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 1.5em;
+        }
+        
+        .correct-feedback {
+            color: #28a745;
+        }
+        .incorrect-feedback {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <h1>?? Historical Question Challenge </h1> 
+        
+        <p id="instruction">Which of these events occurred **EARLIEST**?</p>
+
+        <div id="question-options">
+            </div>
+        
+        <p id="feedback"></p>
+        <p id="score">Score: 0</p>
+    </div>
+
+    <script>
+        const allEvents = [
+            { event: "Magna Carta Signed", year: 1215 },
+            { event: "Gutenberg Invents Printing Press", year: 1440 },
+            { event: "Columbus Reaches Americas", year: 1492 },
+            { event: "Start of the Protestant Reformation", year: 1517 },
+            { event: "English Defeat of the Spanish Armada", year: 1588 },
+            { event: "Founding of Jamestown, Virginia", year: 1607 },
+            { event: "Signing of the US Declaration of Independence", year: 1776 },
+            { event: "Start of the French Revolution", year: 1789 }
+        ];
+
+        const optionsContainer = document.getElementById('question-options');
+        const feedbackElement = document.getElementById('feedback');
+        const scoreElement = document.getElementById('score');
+        
+        let currentEvents = []; 
+        let score = 0;
+        let answered = false;
+        let correctAnswerYear = 0;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function loadNewRound() {
+            answered = false;
+            feedbackElement.textContent = '';
+            optionsContainer.innerHTML = '';
+            
+            shuffleArray(allEvents);
+            const selectedEvents = allEvents.slice(0, 4);
+
+            const sortedEvents = [...selectedEvents].sort((a, b) => a.year - b.year);
+            const earliestEvent = sortedEvents[0];
+            correctAnswerYear = earliestEvent.year;
+
+            shuffleArray(selectedEvents); 
+            currentEvents = selectedEvents;
+
+            currentEvents.forEach(eventData => {
+                const button = document.createElement('button');
+                button.className = 'event-btn';
+                button.dataset.year = eventData.year; 
+                button.textContent = eventData.event;
+                button.addEventListener('click', checkAnswer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(event) {
+            if (answered) return;
+            answered = true;
+            
+            const selectedButton = event.target;
+            const selectedYear = parseInt(selectedButton.dataset.year);
+
+            const buttons = document.querySelectorAll('.event-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedYear === correctAnswerYear) {
+                selectedButton.classList.add('correct');
+                feedbackElement.textContent = "? Correct! That event occurred first.";
+                feedbackElement.className = 'correct-feedback';
+                score++;
+            } else {
+                selectedButton.classList.add('incorrect');
+                feedbackElement.textContent = `? Incorrect. The earliest event was: ${currentEvents.find(e => e.year === correctAnswerYear).event} (${correctAnswerYear}).`;
+                feedbackElement.className = 'incorrect-feedback';
+                
+                buttons.forEach(btn => {
+                    if (parseInt(btn.dataset.year) === correctAnswerYear) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            scoreElement.textContent = `Score: ${score}`;
+
+            setTimeout(loadNewRound, 3000); 
+        }
+
+        loadNewRound();
+    </script>
+</body>
+</html>
